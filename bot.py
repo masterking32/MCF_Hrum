@@ -75,10 +75,10 @@ async def check_cd(log):
 
 
 # Edit the following variables
-BOT_ID = "myuseragent_bot"
-REFERRAL_TOKEN = "ref_masterking32"
-SHORT_APP_NAME = None
-APP_URL = "https://api.masterking32.com/telegram_useragent.php"
+BOT_ID = "hrummebot"
+REFERRAL_TOKEN = "ref95736407"
+SHORT_APP_NAME = "game"
+APP_URL = None
 # End of variables to edit
 
 

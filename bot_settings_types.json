@@ -1,79 +1,64 @@
 [
   {
-    "key": "key1",
-    "name": "Example Text",
-    "type": "text",
-    "placeholder": "Text Placeholder",
-    "default_value": "Default Text",
-    "description": "This is an example text field",
-    "required": false
-  },
-  {
-    "key": "key_number",
-    "name": "Example Number",
-    "type": "number",
-    "placeholder": "Number Placeholder",
-    "default_value": 1,
-    "description": "This is an example number field",
-    "min": 1,
-    "max": 255
-  },
-  {
-    "key": "key_checkbox1",
-    "name": "Example Checkbox",
+    "key": "auto_prediction",
+    "name": "Auto Get Prediction",
     "type": "checkbox",
     "default_value": "on",
-    "description": "This is an example checkbox field"
+    "description": "Automatically get prediction?"
   },
   {
-    "key": "key_range1",
-    "name": "Example Range",
+    "key": "claim_daily_reward",
+    "name": "Claim Daily Reward",
+    "type": "checkbox",
+    "default_value": "on",
+    "description": "Automatically claim daily reward?"
+  },
+  {
+    "key": "auto_finish_tasks",
+    "name": "Auto finish tasks",
+    "type": "checkbox",
+    "default_value": "on",
+    "description": "Automatically finish tasks when they are available?"
+  },
+  {
+    "key": "join_channels",
+    "name": "Join Channels",
+    "type": "checkbox",
+    "default_value": "off",
+    "description": "Automatically join channels to finish tasks?"
+  },
+  {
+    "key": "start_bots",
+    "name": "Start Bots Tasks",
+    "type": "checkbox",
+    "default_value": "on",
+    "description": "Automatically start to finish tasks?"
+  },
+  {
+    "key": "delay_between_accounts",
+    "name": "Delay between accounts (seconds)",
     "type": "range",
-    "default_value": 50,
-    "description": "This is an example range field",
-    "min": 50,
-    "max": 100
+    "default_value": 60,
+    "description": "How long to wait between accounts, in seconds.",
+    "min": 1,
+    "max": 1200
   },
   {
-    "key": "key_select1",
-    "name": "Example Select",
-    "type": "select",
-    "options": [
-      {
-        "value": "option1",
-        "name": "Option 1"
-      },
-      {
-        "value": "option2",
-        "name": "Option 2"
-      }
-    ],
-    "description": "This is an example select field",
-    "multi_select": false
+    "key": "check_interval",
+    "name": "Check interval (seconds)",
+    "type": "number",
+    "default_value": 3600,
+    "description": "How often to login into accounts, in seconds.",
+    "min": 1800,
+    "max": 28800
   },
   {
-    "key": "key_select2",
-    "name": "Example Multi-Select",
-    "type": "select",
-    "options": [
-      {
-        "value": "option1",
-        "name": "Option 1"
-      },
-      {
-        "value": "option2",
-        "name": "Option 2"
-      },
-      {
-        "value": "option3",
-        "name": "Option 3"
-      },
-      {
-        "value": "option4",
-        "name": "Option 4"
-      }
-    ],
-    "description": "This is an example select field",
-    "multi_select": true
+    "key": "max_threads",
+    "name": "Max Threads",
+    "type": "range",
+    "default_value": 5,
+    "description": "Maximum number of threads to use for checking groups of accounts based on their proxies.",
+    "min": 1,
+    "max": 15
   }
 ]

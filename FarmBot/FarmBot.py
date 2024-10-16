@@ -2,8 +2,17 @@
 # Date: 2024
 # Github: https://github.com/masterking32
 # Telegram: https://t.me/MasterCryptoFarmBot
+import random
 import sys
 import os
+import time
+
+from utilities.utilities import getConfig
+from .core.HttpRequest import HttpRequest
+from .core.Auth import Auth
+from .core.User import User
+from .core.Quests import Quests
+from .core.Hero import Hero
 
 MasterCryptoFarmBot_Dir = os.path.dirname(
     os.path.dirname(os.path.abspath(__file__ + "/../../"))
@@ -33,13 +42,119 @@ class FarmBot:
         self.tgAccount = tgAccount
 
     async def run(self):
-        self.log.info(
-            f"<g>🤖 Farming is starting for account <cyan>{self.account_name}</cyan>...</g>"
-        )
+        try:
+            self.log.info(
+                f"<cyan>{self.account_name}</cyan><g> | 🤖 Start farming Hrum ...</g>"
+            )
 
-        # If self.tg is not None, it means you can use Pyrogram...
-        self.log.info(
-            f"<blue>[Development Only] URL: <c>{self.web_app_query}</c></blue>"
-        )
+            self.http = HttpRequest(
+                log=self.log,
+                proxy=self.proxy,
+                user_agent=self.user_agent,
+                tgWebData=self.web_app_query,
+                account_name=self.account_name,
+            )
 
-        # Login and other codes here ...
+            api_key = self.web_app_query.split("&hash=", maxsplit=1)[1]
+            if api_key is None or api_key == "":
+                self.log.error(f"<r>⭕ <c>{self.account_name}</c> failed to farm!</r>")
+                return
+
+            self.http.authToken = api_key
+
+            auth = Auth(
+                log=self.log,
+                httpRequest=self.http,
+                account_name=self.account_name,
+                web_app_query=self.web_app_query,
+            )
+
+            auth_response = auth.auth()
+            if auth_response is None:
+                return
+
+            if "success" not in auth_response and auth_response["success"] is not True:
+                self.log.error(f"<r>⭕ <c>{self.account_name}</c> failed to farm!</r>")
+                return
+
+            user = User(
+                log=self.log,
+                httpRequest=self.http,
+                account_name=self.account_name,
+            )
+
+            self.log.info(
+                f"<g>🔍 <c>{self.account_name}</c> retrieving user data...</g>"
+            )
+            user_all_data = user.data_all()
+
+            if user_all_data is None:
+                return
+
+            profile = user_all_data.get("data", {}).get("profile", {})
+            friends = profile.get("friends", 0)
+            registration_date = profile.get("registrationDate", "")
+            hero_data = user_all_data.get("data", {}).get("hero", {})
+            token = hero_data.get("token", 0)
+            cookies = hero_data.get("cookies", 0)
+
+            self.log.info(f"<g>👤 <c>{self.account_name}</c> Info:</g>")
+            self.log.info(f"<g>👥 Friends: <c>{friends}</c></g>")
+            self.log.info(f"<g>📅 Registration Date: <c>{registration_date}</c></g>")
+            self.log.info(f"<g>💰 Tokens: <c>{token}🥠</c></g>")
+
+            user_after_data = user.after()
+            if user_after_data is None:
+                return
+
+            self.log.info(
+                f"<g>❔ <c>{self.account_name}</c> retrieving daily quests...</g>"
+            )
+
+            quests = Quests(
+                log=self.log,
+                httpRequest=self.http,
+                account_name=self.account_name,
+            )
+
+            daily_quests = quests.daily()
+            if daily_quests is None:
+                return
+
+            onboarding = hero_data.get("onboarding", [])
+            history = user_all_data.get("data", {}).get("history", [])
+
+            hero = Hero(
+                log=self.log,
+                httpRequest=self.http,
+                account_name=self.account_name,
+            )
+
+            if len(onboarding) == 0 or len(history) == 0:
+                self.log.info(f"<g>🎉 <c>{self.account_name}</c> New account!</g>")
+                time.sleep(random.randint(4, 6))
+                hero.onboarding_finish()
+
+            if getConfig("auto_prediction", True):
+                if cookies > 0:
+                    self.log.info(f"<g>🔮 <c>{self.account_name}</c> predicting...</g>")
+                    time.sleep(random.randint(2, 5))
+                    hero.predict()
+                else:
+                    self.log.info(
+                        f"<g>🔮 <c>{self.account_name}</c> predicting is not ready!</g>"
+                    )
+
+            if getConfig("claim_daily_reward", True):
+                quests.check_daily_reward(daily_quests)
+        except Exception as e:
+            self.log.error(f"<r>⭕ <c>{self.account_name}</c> failed to farm!</r>")
+            self.log.error(f"<r>{str(e)}</r>")
+            return
+        finally:
+            delay_between_accounts = getConfig("delay_between_accounts", 60)
+            random_sleep = random.randint(0, 20) + delay_between_accounts
+            self.log.info(
+                f"<g>⌛ Farming for <c>{self.account_name}</c> completed. Waiting for <c>{random_sleep}</c> seconds before running the next account...</g>"
+            )
+            time.sleep(random_sleep)

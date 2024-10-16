@@ -22,7 +22,7 @@
   },
   {
     "key": "auto_finish_tasks",
-    "name": "Auto finish tasks",
+    "name": "Auto Finish tasks",
     "type": "checkbox",
     "default_value": "on",
     "description": "Automatically finish tasks when they are available?"
@@ -35,11 +35,11 @@
     "description": "Automatically join channels to finish tasks?"
   },
   {
-    "key": "start_bots",
-    "name": "Start Bots Tasks",
+    "key": "change_name",
+    "name": "Change Name Task",
     "type": "checkbox",
     "default_value": "on",
-    "description": "Automatically start to finish tasks?"
+    "description": "Automatically add Emoji to your name to finish the task"
   },
   {
     "key": "delay_between_accounts",

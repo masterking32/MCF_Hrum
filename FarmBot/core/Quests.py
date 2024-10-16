@@ -7,13 +7,16 @@
 import json
 import random
 import time
+from utilities.utilities import getConfig
 
 
 class Quests:
-    def __init__(self, log, httpRequest, account_name):
+    def __init__(self, log, httpRequest, account_name, license_key, tgAccount=None):
         self.log = log
         self.http = httpRequest
         self.account_name = account_name
+        self.license_key = license_key
+        self.tgAccount = tgAccount
 
     def daily(self):
         try:
@@ -139,7 +142,126 @@ class Quests:
             )
             return None
 
-    def quest_claim(self, quest_id, quest_answer):
+    async def check_tasks(self, quests, user_quests):
+        try:
+            self.log.info(f"<g>🔍 <c>{self.account_name}</c> checking quests...</g>")
+            for quest in quests:
+                checkType = quest.get("checkType", None)
+                quest_id = quest.get("key", None)
+
+                if checkType is None or quest_id is None:
+                    continue
+
+                task_Title = quest.get("actionText", "")
+                is_completed = False
+                for user_quest in user_quests:
+                    if (
+                        user_quest["key"] == quest_id
+                        and user_quest["isRewarded"] == True
+                    ):
+                        is_completed = True
+                        break
+
+                if is_completed:
+                    continue
+
+                if checkType == "telegramChannel":
+                    if (
+                        self.tgAccount is None
+                        or getConfig("join_channels", True) is False
+                    ):
+                        continue
+
+                    channel_url = quest.get("actionUrl", None)
+
+                    if channel_url is None or channel_url == "":
+                        continue
+
+                    if "+" not in channel_url:
+                        channel_url = (
+                            channel_url.replace("https://t.me/", "")
+                            .replace("@", "")
+                            .replace("boost/", "")
+                        )
+
+                        channel_url = (
+                            channel_url.split("/")[0]
+                            if "/" in channel_url
+                            else channel_url
+                        )
+
+                    self.log.info(
+                        f"<g>📝 <c>{self.account_name}</c> | Attempting to join the <c>{channel_url}</c> channel to complete the <c>{task_Title}</c> task</g>"
+                    )
+
+                    try:
+                        await self.tgAccount.joinChat(channel_url)
+                    except Exception as e:
+                        pass
+
+                    time.sleep(random.randint(5, 10))
+
+                    self.quest_claim(quest_id)
+                    self.log.info(
+                        f"<g>✅ <c>{self.account_name}</c> | <c>{task_Title}</c> is completed!</g>"
+                    )
+                elif checkType in ["fakeCheck"]:
+                    self.quest_claim(quest_id)
+                    self.log.info(
+                        f"<g>✅ <c>{self.account_name}</c> | <c>{task_Title}</c> is completed!</g>"
+                    )
+                elif checkType == "username":
+                    if (
+                        self.tgAccount is None
+                        or getConfig("change_name", True) is False
+                    ):
+                        continue
+
+                    checkData = quest.get("checkData", None)
+                    if checkData is None:
+                        continue
+
+                    tgMe = self.tgAccount.me if self.tgAccount.me else None
+                    if tgMe is None:
+                        continue
+
+                    try:
+                        tgMe.first_name = tgMe.first_name or ""
+                        tgMe.last_name = tgMe.last_name or ""
+
+                        if checkData not in [tgMe.first_name, tgMe.last_name]:
+                            await self.tgAccount.setName(
+                                tgMe.first_name, tgMe.last_name + checkData
+                            )
+
+                            self.log.info(
+                                f"<g>✅ <c>{self.account_name}</c> | Name changed to <c>{checkData}</c> to complete the <c>{task_Title}</c> task</g>"
+                            )
+                            self.log.info(
+                                f"<g>✅ <c>{self.account_name}</c> | <c>{task_Title}</c> will be completed on the next run!</g>"
+                            )
+                            continue
+
+                        self.quest_claim(quest_id)
+                        self.log.info(
+                            f"<g>✅ <c>{self.account_name}</c> | <c>{task_Title}</c> is completed!</g>"
+                        )
+                    except Exception as e:
+                        pass
+                else:
+                    continue
+
+            self.log.info(
+                f"<g>✅ <c>{self.account_name}</c> | All quests are completed!</g>"
+            )
+        except Exception as e:
+            print(e)
+            self.log.error(
+                f"<r>⭕ <c>{self.account_name}</c> failed to check tasks!</r>"
+            )
+            return None
+
+    def quest_claim(self, quest_id, quest_answer=None):
         try:
             response = self.http.post(
                 url="/quests/claim",

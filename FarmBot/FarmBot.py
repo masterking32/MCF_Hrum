@@ -111,10 +111,13 @@ class FarmBot:
                 f"<g>❔ <c>{self.account_name}</c> retrieving daily quests...</g>"
             )
 
+            license_key = self.bot_globals.get("license", None)
             quests = Quests(
                 log=self.log,
                 httpRequest=self.http,
                 account_name=self.account_name,
+                license_key=license_key,
+                tgAccount=self.tgAccount,
             )
 
             daily_quests = quests.daily()
@@ -158,6 +161,17 @@ class FarmBot:
                 user_quests = user_after_data.get("data", {}).get("quests", [])
                 quests.check_riddle(quests_list, user_quests)
 
+            if getConfig("auto_finish_tasks", True):
+                self.log.info(f"<g>🔍 <c>{self.account_name}</c> checking tasks...</g>")
+                quests_list = (
+                    user_all_data.get("data", {}).get("dbData", []).get("dbQuests", [])
+                )
+                user_quests = user_after_data.get("data", {}).get("quests", [])
+                await quests.check_tasks(quests_list, user_quests)
+
+            self.log.info(
+                f"<g>🎉 <c>{self.account_name}</c> finished farming Hrum!</g>"
+            )
         except Exception as e:
             self.log.error(f"<r>⭕ <c>{self.account_name}</c> failed to farm!</r>")
             self.log.error(f"<r>{str(e)}</r>")

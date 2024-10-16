@@ -47,7 +47,7 @@ class User:
 
     def cookie_open(self):
         try:
-            response = self.http.post(url="//user/cookie/open", data=json.dumps({}))
+            response = self.http.post(url="/user/cookie/open", data=json.dumps({}))
 
             if response is None:
                 self.log.error(

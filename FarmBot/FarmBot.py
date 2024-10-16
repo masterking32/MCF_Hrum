@@ -142,7 +142,7 @@ class FarmBot:
                 if cookies > 0:
                     self.log.info(f"<g>🔮 <c>{self.account_name}</c> predicting...</g>")
                     time.sleep(random.randint(2, 5))
-                    hero.predict()
+                    user.cookie_open()
                 else:
                     self.log.info(
                         f"<g>🔮 <c>{self.account_name}</c> predicting is not ready!</g>"

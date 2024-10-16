@@ -11,6 +11,10 @@ This module for the [MasterCryptoFarmBot](https://github.com/masterking32/Master
 
 ---
 
+# 🚀 [Start the Bot on Telegram](https://t.me/hrummebot/game?startapp=ref95736407)
+
+---
+
 ## ⭐ Support the Project
 
 If you find this project useful, please consider giving it a star!

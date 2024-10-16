@@ -22,7 +22,7 @@ If you find this project useful, please consider giving it a star!
 ## Module Features
 
 - **📋 Tasks:** Automatically complete tasks (e.g., Video, Join Channel).
-- **🥠 Add "🥠"** Automatically add "🥠" to your account name to complete the task.
+- **🥠 Rename Account:** Automatically add "🥠" to your account name to complete the task.
 - **🎁 Riddle:** Automatically finish riddle tasks.
 - **🍪 Automatic Farming:** Start and claim farms automatically.
 - **🎉 Daily Bonus:** Automatically claim daily bonuses.

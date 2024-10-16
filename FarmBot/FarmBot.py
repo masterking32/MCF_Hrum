@@ -147,6 +147,17 @@ class FarmBot:
 
             if getConfig("claim_daily_reward", True):
                 quests.check_daily_reward(daily_quests)
+
+            if getConfig("claim_riddle", True):
+                self.log.info(
+                    f"<g>🔍 <c>{self.account_name}</c> checking riddle...</g>"
+                )
+                quests_list = (
+                    user_all_data.get("data", {}).get("dbData", []).get("dbQuests", [])
+                )
+                user_quests = user_after_data.get("data", {}).get("quests", [])
+                quests.check_riddle(quests_list, user_quests)
+
         except Exception as e:
             self.log.error(f"<r>⭕ <c>{self.account_name}</c> failed to farm!</r>")
             self.log.error(f"<r>{str(e)}</r>")

@@ -76,7 +76,10 @@ async def check_cd(log):
 
 # Edit the following variables
 BOT_ID = "hrummebot"
-REFERRAL_TOKEN = "ref95736407"
+REFERRAL_TOKEN = utilities.getConfig(
+    "referral_token",
+    "ref95736407",
+)
 SHORT_APP_NAME = "game"
 APP_URL = None
 # End of variables to edit
@@ -114,13 +117,17 @@ async def process_pg_account(account, bot_globals, log, group_id=None):
         if account.get("proxy") == "":
             account["proxy"] = None
 
+        ref = REFERRAL_TOKEN
+        if ref is None or ref == "" or "ref" not in ref:
+            ref = "ref95736407"
+
         tg = tgAccount(
             bot_globals=bot_globals,
             log=log,
             accountName=account["session_name"],
             proxy=account["proxy"],
             BotID=BOT_ID,
-            ReferralToken=REFERRAL_TOKEN,
+            ReferralToken=ref,
             ShortAppName=SHORT_APP_NAME,
             AppURL=APP_URL,
         )

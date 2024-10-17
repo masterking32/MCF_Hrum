@@ -67,5 +67,14 @@
     "description": "Maximum number of threads to use for checking groups of accounts based on their proxies.",
     "min": 1,
     "max": 15
+  },
+  {
+    "key": "referral_token",
+    "name": "Referral Token",
+    "type": "text",
+    "placeholder": "ref95736407",
+    "default_value": "ref95736407",
+    "required": false,
+    "description": "Put your referral token here. It's just your ID. Format: ref95736407"
   }
 ]

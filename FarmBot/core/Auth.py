@@ -7,6 +7,8 @@
 import json
 from urllib.parse import parse_qs
 
+import utilities.utilities as utilities
+
 
 class Auth:
     def __init__(self, log, httpRequest, account_name, web_app_query):
@@ -21,13 +23,21 @@ class Auth:
             chat_type = params.get("chat_type", [""])[0]
             chat_instance = params.get("chat_instance", [""])[0]
 
+            ref = utilities.getConfig(
+                "referral_token",
+                "ref95736407",
+            )
+
+            if ref is None or ref == "" or "ref" not in ref:
+                ref = "ref95736407"
+
             device_os = "android" if "Android" in self.http.user_agent else "ios"
             payload = {
                 "data": {
                     "chatId": "",
                     "initData": self.web_app_query,
                     "platform": device_os,
-                    "startParam": "ref95736407",
+                    "startParam": ref,
                 }
             }
 

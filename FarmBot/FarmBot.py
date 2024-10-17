@@ -55,7 +55,16 @@ class FarmBot:
                 account_name=self.account_name,
             )
 
-            api_key = self.web_app_query.split("&hash=", maxsplit=1)[1]
+            api_key = None
+            try:
+                api_key = self.web_app_query.split("&hash=", maxsplit=1)[1]
+            except Exception as e:
+                self.log.error(
+                    f"<r>⭕ <c>{self.account_name}</c> failed to farm! (Invalid TgWebQuery)</r>"
+                )
+                self.log.error(f"<r>{str(e)}</r>")
+                return
+
             if api_key is None or api_key == "":
                 self.log.error(f"<r>⭕ <c>{self.account_name}</c> failed to farm!</r>")
                 return

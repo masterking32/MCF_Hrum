@@ -229,7 +229,10 @@ class Quests:
                         tgMe.first_name = tgMe.first_name or ""
                         tgMe.last_name = tgMe.last_name or ""
 
-                        if checkData not in [tgMe.first_name, tgMe.last_name]:
+                        if (
+                            checkData not in tgMe.last_name
+                            and checkData not in tgMe.first_name
+                        ):
                             await self.tgAccount.setName(
                                 tgMe.first_name, tgMe.last_name + checkData
                             )

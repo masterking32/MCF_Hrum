@@ -16,6 +16,7 @@ import time
 
 import utilities.utilities as utilities
 from FarmBot.FarmBot import FarmBot
+from mcf_utils.api import API
 
 # Constants
 CHECK_INTERVAL = utilities.getConfig("check_interval", 3600)
@@ -66,9 +67,13 @@ except Exception as e:
     exit(1)
 
 
-async def check_cd(log):
-    log.info(f"<y>💤 Checking again in </y><c>{CHECK_INTERVAL}</c><y> seconds ...</y>")
-    time.sleep(CHECK_INTERVAL)
+async def check_cd(log, bot_globals):
+    sleep_time = CHECK_INTERVAL
+    if not module_available(log, bot_globals["license"], bot_globals["module_name"]):
+        sleep_time = 600
+
+    log.info(f"<y>💤 Checking again in </y><c>{sleep_time}</c><y> seconds ...</y>")
+    time.sleep(sleep_time)
     random_wait = random.randint(60, 120)
     log.info(f"<y>💤 Random wait for </y><c>{random_wait}</c><y> seconds ...</y>")
     await asyncio.sleep(random_wait)
@@ -82,7 +87,52 @@ REFERRAL_TOKEN = utilities.getConfig(
 )
 SHORT_APP_NAME = "game"
 APP_URL = None
+VERSION_HASH = "c86697bc2916baf079392a6288b9b284"
 # End of variables to edit
+
+
+recent_checks = {}
+
+
+def module_available(logger, license, module_name):
+    if not license or not module_name:
+        return False
+
+    if not VERSION_HASH or VERSION_HASH == "":
+        return True
+
+    if (
+        "status" in recent_checks
+        and recent_checks["status"]
+        and "date" in recent_checks
+    ):
+        if time.time() - recent_checks["date"] < 600:
+            return recent_checks["status"]
+    recent_checks["date"] = time.time()
+    recent_checks["status"] = False
+
+    apiObj = API(logger)
+    data = {
+        "action": "version_check",
+        "module_name": module_name,
+        "version": VERSION_HASH,
+    }
+
+    response = apiObj.get_task_answer(license, data)
+    if "error" in response:
+        logger.error(f"<y>⭕ API Error: {response['error']}</y>")
+    elif "status" in response and response["status"] == "success":
+        recent_checks["status"] = True
+    elif (
+        "status" in response and response["status"] == "error" and "message" in response
+    ):
+        logger.info(f"<y>🟡 {response['message']}</y>")
+    else:
+        logger.error(
+            f"<y>🟡 Unable to verify module version, please try again later</y>"
+        )
+
+    return recent_checks["status"]
 
 
 def load_json_file(file_path, default=None):
@@ -234,6 +284,15 @@ async def handle_accounts(group_id, accounts, bot_globals, log):
 
         for account in accounts:
             try:
+                module_status = module_available(
+                    log, bot_globals["license"], bot_globals["module_name"]
+                )
+                if not module_status:
+                    log.error(
+                        f"<r>❌ Module <c>{bot_globals['module_name']}</c> API has been changed. Please wait for an update.</r>"
+                    )
+                    return
+
                 if account["is_pyrogram"]:
                     await process_pg_account(account, bot_globals, log, group_id)
                 else:
@@ -372,7 +431,7 @@ async def main():
             pyrogram_accounts, module_accounts, all_accounts = load_accounts()
             if all_accounts is None or len(all_accounts) == 0:
                 log.info("<y>🟠 No accounts found!</y>")
-                await check_cd(log)
+                await check_cd(log, bot_globals)
                 continue
 
             log.info(
@@ -424,7 +483,7 @@ async def main():
                     )
             except Exception as e:
                 log.error(f"<r>❌ Error grouping accounts: {e}</r>")
-                await check_cd(log)
+                await check_cd(log, bot_globals)
                 continue
 
             tasks = []
@@ -477,10 +536,10 @@ async def main():
             log.info(
                 "<g>✅ All accounts and groups have been processed successfully. Waiting for the next check ...</g>"
             )
-            await check_cd(log)
+            await check_cd(log, bot_globals)
         except Exception as e:
             log.error(f"<r>❌ Error processing Pyrogram/Telethon accounts: {e}</r>")
-            await check_cd(log)
+            await check_cd(log, bot_globals)
         except KeyboardInterrupt:
             log.info(f"<r>🛑 Bot Module interrupted by user ...</r>")
             break

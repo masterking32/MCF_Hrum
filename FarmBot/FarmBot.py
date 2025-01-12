@@ -7,7 +7,7 @@ import sys
 import os
 import time
 
-from utilities.utilities import add_account_to_display_data, getConfig
+from utilities.utilities import add_account_to_display_data, getConfig, inc_display_data
 from .core.HttpRequest import HttpRequest
 from .core.Auth import Auth
 from .core.User import User
@@ -190,6 +190,12 @@ class FarmBot:
                 self.account_name,
                 "Cookies: " + str(cookies),
                 token,
+            )
+
+            inc_display_data(
+                "display_data.json",
+                "success_accounts",
+                {"title": "Successfull farm finished accounts", "name": "count"},
             )
         except Exception as e:
             add_account_to_display_data(

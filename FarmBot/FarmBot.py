@@ -7,7 +7,7 @@ import sys
 import os
 import time
 
-from utilities.utilities import getConfig
+from utilities.utilities import add_account_to_display_data, getConfig
 from .core.HttpRequest import HttpRequest
 from .core.Auth import Auth
 from .core.User import User
@@ -80,6 +80,9 @@ class FarmBot:
 
             auth_response = auth.auth()
             if auth_response is None:
+                add_account_to_display_data(
+                    "display_data_bot_issues.json", self.account_name
+                )
                 return
 
             if "success" not in auth_response and auth_response["success"] is not True:
@@ -181,7 +184,17 @@ class FarmBot:
             self.log.info(
                 f"<g>🎉 <c>{self.account_name}</c> finished farming Hrum!</g>"
             )
+
+            add_account_to_display_data(
+                "display_data_success_accounts.json",
+                self.account_name,
+                "Cookies: " + str(cookies),
+                token,
+            )
         except Exception as e:
+            add_account_to_display_data(
+                "display_data_bot_issues.json", self.account_name
+            )
             self.log.error(f"<r>⭕ <c>{self.account_name}</c> failed to farm!</r>")
             self.log.error(f"<r>{str(e)}</r>")
             return
